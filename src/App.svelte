@@ -1,7 +1,7 @@
 <script>
   let textFiles = [];
   let image_guessing_main_visible = false;
-  let text_guessing_main_visible = true;
+  let text_guessing_main_visible = false;
   let text_guessing_word_mode_visible = false;
   let text_guessing_char_mode_visible = false;
   let text_prob = 0;
@@ -133,8 +133,21 @@
     text_file = event.target.files[0];
   }
 
-</script>
+  function pressTextGuessingBtn(event) {
+    image_guessing_main_visible = false;
+    text_guessing_main_visible = true;
+  }
 
+  function pressImgtGuessingBtn(event) {
+    image_guessing_main_visible = true;
+    text_guessing_main_visible = false;
+  }
+
+</script>
+<div style='font-family:Times New Roman;'>
+  <button on:click={(event) => pressTextGuessingBtn(event)}>Text Guessing Game</button>
+  <button on:click={(event) => pressImgtGuessingBtn(event)}>Image Guessing Game</button>
+</div>
 {#if image_guessing_main_visible}
   <div id='image_guessing_main'>This would be image_guessing_main</div>
 {/if}

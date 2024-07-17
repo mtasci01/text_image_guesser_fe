@@ -8,7 +8,9 @@
   let game_id = null;
   let text_text = '';
   let text_file = null;
-  let charGuessList = []
+  let charGuessList = [];
+  let labeledImgFile = null;
+  
 
   let apiUrl = "";
   fetch("src/assets/config.json")
@@ -61,15 +63,6 @@
     
     const response = await fetch(apiUrl + '/text/start_char_game?file_id=' + fileId + "&prob="+text_prob);
     charGuessList = await response.json();
-    /*start_json.forEach((charObj) => {
-      //console.log(charObj)
-      let charHtml = charObj['char'];
-      if (charObj['to_replace']){
-        charHtml = "<span class='ch_to_reveal'>?</span>";
-      }
-      charGuessHtml += charHtml;
-    });
-    console.log(charGuessHtml);*/
     text_guessing_word_mode_visible = false;
     text_guessing_char_mode_visible = true;
 
@@ -99,6 +92,19 @@
       
     });
     getSavedTextFiles();
+  }
+
+  async function uploadLabeledImg(event){
+    const formData = new FormData();
+    formData.append('file', labeledImgFile);
+    let label = prompt("Enter the label");
+    formData.append('label', label);
+    
+    const response = await fetch(apiUrl + '/img/upload_labeled_file',{method: 'POST',
+        body: formData,
+      
+    });
+    //getSavedImgsFiles();
   }
 
   let wordguess = "";
@@ -133,6 +139,10 @@
     text_file = event.target.files[0];
   }
 
+  function handleImgsFile(event) {
+    labeledImgFile = event.target.files[0];
+  }
+
   function pressTextGuessingBtn(event) {
     image_guessing_main_visible = false;
     text_guessing_main_visible = true;
@@ -150,6 +160,11 @@
 </div>
 {#if image_guessing_main_visible}
   <div id='image_guessing_main'>This would be image_guessing_main</div>
+  <div style='margin:10px'>
+    <div style='font-weight:bold'>Upload your image file!</div>
+    <div><input on:change={handleImgsFile} type="file"/>
+    <button on:click={(event) => uploadLabeledImg(event)}>Upload</button></div>
+  </div>
 {/if}
 {#if text_guessing_main_visible}
   <div>

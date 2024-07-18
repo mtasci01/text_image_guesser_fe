@@ -10,6 +10,7 @@
   let text_file = null;
   let charGuessList = [];
   let labeledImgFile = null;
+  let numImgStored = 0;
   
 
   let apiUrl = "";
@@ -17,12 +18,22 @@
   .then((res) => res.json())
   .then((resp) => {
     apiUrl = resp.apiUrl;
-    getSavedTextFiles(); 
+    getSavedTextFiles();
+    getSavedImgFilesNum(); 
   });
 
   async function getSavedTextFiles() {
     const response = await fetch(apiUrl + '/text/get_saved_files');
     textFiles = await response.json();
+  }
+
+  async function getSavedImgFilesNum() {
+    const response = await fetch(apiUrl + '/img/get_saved_img_num');
+    numImgStored = await response.json();
+  }
+
+  async function startImgGame() {
+    const response = await fetch(apiUrl + '/img/start_game');
   }
 
   function clickChar(event) {
@@ -100,11 +111,11 @@
     let label = prompt("Enter the label");
     formData.append('label', label);
     
-    const response = await fetch(apiUrl + '/img/upload_labeled_file',{method: 'POST',
+    const response = await fetch(apiUrl + '/img/upload_labeled_file?label='+label,{method: 'POST',
         body: formData,
       
     });
-    //getSavedImgsFiles();
+    getSavedImgFilesNum();
   }
 
   let wordguess = "";
@@ -159,12 +170,18 @@
   <button on:click={(event) => pressImgtGuessingBtn(event)}>Image Guessing Game</button>
 </div>
 {#if image_guessing_main_visible}
-  <div id='image_guessing_main'>This would be image_guessing_main</div>
+  <div>
+    <h1 style='font-family: Courier New;'>Image Guessing game!!</h1>
+  </div>
   <div style='margin:10px'>
     <div style='font-weight:bold'>Upload your image file!</div>
     <div><input on:change={handleImgsFile} type="file"/>
     <button on:click={(event) => uploadLabeledImg(event)}>Upload</button></div>
   </div>
+  <div>
+  Num of files stored: {numImgStored}
+  </div>
+  <button on:click={startImgGame}>Play!</button>
 {/if}
 {#if text_guessing_main_visible}
   <div>

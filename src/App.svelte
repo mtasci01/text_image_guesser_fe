@@ -11,6 +11,7 @@
   let charGuessList = [];
   let labeledImgFile = null;
   let numImgStored = 0;
+  let imgGameId = null;
   
 
   let apiUrl = "";
@@ -34,6 +35,10 @@
 
   async function startImgGame() {
     const response = await fetch(apiUrl + '/img/start_game');
+    let json = await response.json();
+    imgGameId = json['game_id'];
+    const response2 = await fetch(apiUrl + '/img/download_cached?game_id='+imgGameId);
+    //refresh img src by attaching an extra qs parameter
   }
 
   function clickChar(event) {

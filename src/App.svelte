@@ -12,6 +12,7 @@
   let labeledImgFile = null;
   let numImgStored = 0;
   let imgGameId = null;
+  let imgGameSrc = null;
   
 
   let apiUrl = "";
@@ -37,7 +38,8 @@
     const response = await fetch(apiUrl + '/img/start_game');
     let json = await response.json();
     imgGameId = json['game_id'];
-    const response2 = await fetch(apiUrl + '/img/download_cached?game_id='+imgGameId);
+    imgGameSrc = apiUrl + '/img/download_cached?game_id='+imgGameId + "&t=" + (new Date()).getTime()
+    //const response2 = await fetch(apiUrl + '/img/download_cached?game_id='+imgGameId);
     //refresh img src by attaching an extra qs parameter
   }
 
@@ -187,6 +189,9 @@
   Num of files stored: {numImgStored}
   </div>
   <button on:click={startImgGame}>Play!</button>
+  {#if imgGameSrc}
+    <img style='max-width: 500px; max-height: 500px;' alt='guess img' src={imgGameSrc}/>
+  {/if}
 {/if}
 {#if text_guessing_main_visible}
   <div>

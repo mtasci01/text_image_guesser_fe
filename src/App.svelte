@@ -43,8 +43,15 @@
     //refresh img src by attaching an extra qs parameter
   }
 
+  function clickImg(event){
+    const img = event.target;
+    const rect = img.getBoundingClientRect();
+    let relativeX = event.clientX - rect.left;
+    let relativeY = event.clientY - rect.top;  
+    console.log("X Coordinate: " + relativeX + " Y Coordinate: " + relativeY);  
+  }
+
   function clickChar(event) {
-    console.log(event)
     let ix = event.target.attributes['data-ix'].value;
     charGuessList[ix]['to_replace'] = false;
   }
@@ -53,7 +60,6 @@
     
     let fileId = event.target.attributes['data-fileid'].value;
     let probStr = prompt("Enter probability of hiding element (between 0 and 1)");
-    console.log(probStr);
     text_prob = parseFloat(probStr);
     
     if (isNaN(text_prob) || !(text_prob > 0 && text_prob < 1)){
@@ -190,7 +196,11 @@
   </div>
   <button on:click={startImgGame}>Play!</button>
   {#if imgGameSrc}
-    <img style='max-width: 500px; max-height: 500px;' alt='guess img' src={imgGameSrc}/>
+  <div>
+    <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <img  on:click={(event) => clickImg(event)} style='max-width: 500px; max-height: 500px;' alt='guess img' src={imgGameSrc}/>
+  </div>
   {/if}
 {/if}
 {#if text_guessing_main_visible}

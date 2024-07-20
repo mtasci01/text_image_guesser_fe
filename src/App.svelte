@@ -38,18 +38,25 @@
     const response = await fetch(apiUrl + '/img/start_game');
     let json = await response.json();
     imgGameId = json['game_id'];
-    imgGameSrc = apiUrl + '/img/download_cached?game_id='+imgGameId + "&t=" + (new Date()).getTime()
-    //const response2 = await fetch(apiUrl + '/img/download_cached?game_id='+imgGameId);
-    //refresh img src by attaching an extra qs parameter
+    refreshImgGameSrc();
+
   }
 
-  function clickImg(event){
+  function refreshImgGameSrc(){
+    imgGameSrc = apiUrl + '/img/download_cached?game_id='+imgGameId + "&t=" + (new Date()).getTime()
+  }
+
+  async function clickImg(event){
     const img = event.target;
     const rect = img.getBoundingClientRect();
     let relativeX = event.clientX - rect.left;
     let relativeY = event.clientY - rect.top;  
-    console.log("X Coordinate: " + relativeX + " Y Coordinate: " + relativeY);  
+    let imgSize = rect.width;
+    const response = await fetch(apiUrl + '/img/click_img_sent?p_x=' + relativeX + '&p_y=' + relativeY + '&game_id='+ imgGameId + "&client_img_size=" + imgSize);
+    let json = await response.json();
+    refreshImgGameSrc();
   }
+  
 
   function clickChar(event) {
     let ix = event.target.attributes['data-ix'].value;

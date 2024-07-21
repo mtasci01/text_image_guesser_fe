@@ -145,6 +145,7 @@
       
     });
     getSavedImgFilesNum();
+    getAllImgLabels();
   }
 
   let wordguess = "";
@@ -235,8 +236,8 @@
   <div>
   Num of files stored: {numImgStored}
   </div>
-  <button on:click={startImgGame}>Play!</button>
   {#if imgGameSrc}
+  <div style='margin-bottom:10px'>
         <input type="text" bind:value={labelGuess} on:keydown={labelGuessedKeydown} list="imgLabelsL" placeholder="Guess the label" />
         <button on:click={revealLabel}>Reveal Label</button>
 
@@ -246,12 +247,14 @@
               {/each}
                 
             </datalist>
+          </div>          
   <div>
     <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <img  on:click={(event) => clickImg(event)} style='max-width: 500px; max-height: 500px;' alt='guess img' src={imgGameSrc}/>
   </div>
   {/if}
+  <button style='margin-top:10px' on:click={startImgGame}>Start game!</button>
 {/if}
 {#if text_guessing_main_visible}
   <div>

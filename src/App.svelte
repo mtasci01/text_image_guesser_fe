@@ -13,6 +13,9 @@
   let numImgStored = 0;
   let imgGameId = null;
   let imgGameSrc = null;
+  let imgGameLabel = null;
+  let imgLabels = [];
+  let labelGuess = null;
   
 
   let apiUrl = "";
@@ -22,6 +25,7 @@
     apiUrl = resp.apiUrl;
     getSavedTextFiles();
     getSavedImgFilesNum(); 
+    getAllImgLabels();
   });
 
   async function getSavedTextFiles() {
@@ -38,12 +42,17 @@
     const response = await fetch(apiUrl + '/img/start_game');
     let json = await response.json();
     imgGameId = json['game_id'];
-    refreshImgGameSrc();
+    imgGameLabel = json['label'];
+    refreshImgGameSrc(false);
 
   }
 
-  function refreshImgGameSrc(){
-    imgGameSrc = apiUrl + '/img/download_cached?game_id='+imgGameId + "&t=" + (new Date()).getTime()
+  function refreshImgGameSrc(origin){
+    let originStr ="";
+    if (origin == true){
+      originStr="_original"
+    }
+    imgGameSrc = apiUrl + '/img/download_cached' + originStr + '?game_id='+imgGameId + "&t=" + (new Date()).getTime()
   }
 
   async function clickImg(event){
@@ -54,7 +63,7 @@
     let imgSize = rect.width;
     const response = await fetch(apiUrl + '/img/click_img_sent?p_x=' + relativeX + '&p_y=' + relativeY + '&game_id='+ imgGameId + "&client_img_size=" + imgSize);
     let json = await response.json();
-    refreshImgGameSrc();
+    refreshImgGameSrc(false);
   }
   
 
@@ -166,6 +175,19 @@
 
 	}
 
+  async function getAllImgLabels() {
+     
+     const response = await fetch(apiUrl + '/img/get_all_labels');
+     let json = await response.json();
+     imgLabels = json
+
+	}
+
+
+  function revealLabel() {
+    alert(imgGameLabel);
+  }
+
   function handleFileChange(event) {
     text_file = event.target.files[0];
   }
@@ -183,6 +205,18 @@
     image_guessing_main_visible = true;
     text_guessing_main_visible = false;
   }
+
+  async function labelGuessedKeydown(e) {
+     if (e.key != 'Enter'){
+      return;
+     }
+
+     if (labelGuess == imgGameLabel){
+      alert("CORRECT!")
+     }
+
+     refreshImgGameSrc(true);
+	}
 
 </script>
 <div style='font-family:Times New Roman;'>
@@ -203,6 +237,15 @@
   </div>
   <button on:click={startImgGame}>Play!</button>
   {#if imgGameSrc}
+        <input type="text" bind:value={labelGuess} on:keydown={labelGuessedKeydown} list="imgLabelsL" placeholder="Guess the label" />
+        <button on:click={revealLabel}>Reveal Label</button>
+
+            <datalist id="imgLabelsL">
+              {#each imgLabels as label}
+                <option value="{label}">{label}</option>
+              {/each}
+                
+            </datalist>
   <div>
     <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
     <!-- svelte-ignore a11y-click-events-have-key-events -->

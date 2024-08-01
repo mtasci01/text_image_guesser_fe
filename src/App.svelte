@@ -2,6 +2,7 @@
   let textFiles = [];
   let image_guessing_main_visible = false;
   let text_guessing_main_visible = false;
+  let location_guessing_main_visible = false;
   let text_guessing_word_mode_visible = false;
   let text_guessing_char_mode_visible = false;
   let text_prob = 0;
@@ -16,6 +17,10 @@
   let imgGameLabel = null;
   let imgLabels = [];
   let labelGuess = null;
+  let locationGuess = null;
+  let locationTarget = null;
+  let locationLabels = [];
+  let directionsStr = "";
   
 
   let apiUrl = "";
@@ -26,6 +31,7 @@
     getSavedTextFiles();
     getSavedImgFilesNum(); 
     getAllImgLabels();
+    getAllLocationLabels();
   });
 
   async function getSavedTextFiles() {
@@ -45,6 +51,14 @@
     imgGameLabel = json['label'];
     refreshImgGameSrc(false);
 
+  }
+
+  async function startLocationGame() {
+    const response = await fetch(apiUrl + '/locations/get_random_label');
+    let json = await response.json();
+    locationTarget = json
+    locationGuess = null
+    directionsStr = ""
   }
 
   function refreshImgGameSrc(origin){
@@ -112,7 +126,6 @@
     
     let file_id = event.target.attributes['data-fileid'].value;
     let to_delete = confirm("Are you sure you want ot delete this file?");
-    console.log(to_delete);
     if (to_delete){
       const response = await fetch(apiUrl + '/text/delete_file?file_id=' + file_id,{
               method: 'DELETE'
@@ -122,10 +135,8 @@
   }
 
   async function upload_text_file(event){
-    console.log("here");
     const formData = new FormData();
     formData.append('file', text_file);
-    console.log(text_file);
     
     const response = await fetch(apiUrl + '/text/upload_file',{method: 'POST',
         body: formData,
@@ -184,6 +195,13 @@
 
 	}
 
+  async function getAllLocationLabels() {
+     
+     const response = await fetch(apiUrl + '/locations/get_all_labels');
+     let json = await response.json();
+     locationLabels = json
+	}
+
 
   function revealLabel() {
     alert(imgGameLabel);
@@ -199,11 +217,19 @@
 
   function pressTextGuessingBtn(event) {
     image_guessing_main_visible = false;
+    location_guessing_main_visible = false
     text_guessing_main_visible = true;
   }
 
   function pressImgtGuessingBtn(event) {
     image_guessing_main_visible = true;
+    location_guessing_main_visible = false;
+    text_guessing_main_visible = false;
+  }
+
+  function presLocationtGuessingBtn(event) {
+    image_guessing_main_visible = false;
+    location_guessing_main_visible = true;
     text_guessing_main_visible = false;
   }
 
@@ -219,11 +245,50 @@
      refreshImgGameSrc(true);
 	}
 
+  async function locationGuessedKeydown(e) {
+     if (e.key != 'Enter'){
+      return;
+     }
+
+     if (locationGuess == locationTarget){
+      alert("CORRECT!")
+     }
+
+     await getDirections(locationGuess,locationTarget);
+
+	}
+
+  async function getDirections(start,target) {
+     
+     const response = await fetch(apiUrl + '/locations/get_directions?start=' +start + "&target="+target);
+     let json = await response.json();
+     directionsStr = "target is from " + start + ": " + json['direction'] + " - " + json['distance_km'] + " km - " + json['angle_deg'] + " degrees";
+	}
+
 </script>
 <div style='font-family:Times New Roman;'>
   <button on:click={(event) => pressTextGuessingBtn(event)}>Text Guessing Game</button>
   <button on:click={(event) => pressImgtGuessingBtn(event)}>Image Guessing Game</button>
+  <button on:click={(event) => presLocationtGuessingBtn(event)}>Location Guessing Game</button>
 </div>
+{#if location_guessing_main_visible}
+  <div>
+    <h1 style='font-family: Courier New;'>Location Guessing game!!</h1>
+  </div>
+  <button style='margin-top:10px' on:click={startLocationGame}>Start game!</button>
+  {#if locationTarget}
+     <input type="text" bind:value={locationGuess} on:keydown={locationGuessedKeydown} list="locationLabelsL" placeholder="Guess the location" />
+     <datalist id="locationLabelsL">
+      {#each locationLabels as label}
+        <option value="{label}">{label}</option>
+      {/each}
+        
+    </datalist>
+  {/if}
+  <div>
+    {directionsStr}
+  </div>
+{/if}
 {#if image_guessing_main_visible}
   <div>
     <h1 style='font-family: Courier New;'>Image Guessing game!!</h1>
